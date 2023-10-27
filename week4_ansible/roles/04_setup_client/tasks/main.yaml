@@ -27,7 +27,7 @@
 - name: mount the filesystem
   become: true
   ansible.posix.mount:
-    name: data
+    name: "/home/{{ user }}/{{ data_dir }}/"
     src: "{{ mount_volume }}"
     fstype: "{{ mount_fstype }}"
     state: mounted 
