@@ -5,8 +5,17 @@
 1. `requirements.yaml` - used for installing ansible modules
 1. `inventory.yaml` - list oh nodes
 ```bash
-# to skip known host fingerprint checks
+# ALL - Install Modules - to skip first time known host fingerprint checks
 ansible-playbook -i inventory.yaml --private-key=~/.ssh/lecturer_key 01_install_modules.yaml --ssh-common-args='-o StrictHostKeyChecking=no'
+
+# Host - Create and Send Keys to Client and Cluster
+ansible-playbook -i inventory.yaml --private-key=~/.ssh/lecturer_key 02_03_create_keys.yaml
+
+# Client Format and Mount Storage
+
+# Client - Start web Server
+```
+```bash
 ```
 
 ## Inventory

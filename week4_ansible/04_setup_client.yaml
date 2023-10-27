@@ -1,0 +1,4 @@
+- name: Client - Mount Drive and start WebServer
+  hosts: client
+  roles:
+    - 04_setup_client
