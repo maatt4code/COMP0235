@@ -1,0 +1,11 @@
+[client]
+ec2-35-176-58-53.eu-west-2.compute.amazonaws.com
+
+[cluster:vars]
+ansible_user=ec2-user
+
+[cluster]
+# ec2-35-177-115-82.eu-west-2.compute.amazonaws.com
+ec2-18-135-137-175.eu-west-2.compute.amazonaws.com
+# ec2-18-133-104-98.eu-west-2.compute.amazonaws.com
+# ec2-13-41-150-14.eu-west-2.compute.amazonaws.com

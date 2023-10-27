@@ -1,0 +1,24 @@
+- name: test Stuff
+  hosts: localhost
+  tasks:
+  ################################################################################
+  # admin
+  ################################################################################
+  - name: Include Variable File
+    ansible.builtin.include_vars:
+      file: variables.yaml
+  ################################################################################
+  # ssh-keygen - create keys
+  ################################################################################
+  - name: check if key already exists
+    ansible.builtin.stat:
+      path: "~/.ssh/{{ key_name }}"
+    register: "{{ key_name }}_exists"
+  - name: Debug GOOD
+    ansible.builtin.debug:
+      msg: "{{ key_name }} exists"
+    when: "{{ key_name }}_exists"
+  - name: Debug Bad
+    ansible.builtin.debug:
+      msg: "{{ key_name }} NOT exists"
+    when: not {{ key_name }}_exists

@@ -1,0 +1,19 @@
+- name: Include Variable File
+  ansible.builtin.include_vars:
+    file: variables.yaml
+
+- name: Create Working Directory
+  ansible.builtin.file:
+    path: "/home/{{ user }}/{{ working_dir }}"
+    state: directory
+    recurse: yes
+
+- name: Copy Requirement File
+  ansible.builtin.copy:
+    src: "/home/{{ user }}/{{ working_dir }}/requirements.yaml"
+    dest: "/home/{{ user }}/{{ working_dir }}/requirements.yaml"
+    state: file
+
+- name: Install Ansible Packages
+  ansible.builtin.shell:
+    cmd: "ansible-galaxy collection install -r /home/{{ user }}/{{ working_dir }}/requirements.yaml"

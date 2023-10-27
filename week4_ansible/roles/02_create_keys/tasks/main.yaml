@@ -1,0 +1,39 @@
+################################################################################
+# admin
+################################################################################
+- name: Include Variable File
+  ansible.builtin.include_vars:
+    file: variables.yaml
+
+################################################################################
+# ssh-keygen - create keys
+################################################################################
+- name: check if key already exists
+  ansible.builtin.stat:
+    path: "~/.ssh/{{ ansible_key_name }}"
+  register: week4_key
+#
+- name: Alert key is about to be generated
+  ansible.builtin.debug:
+    msg: "Going to generate {{ ansible_key_name }}"
+  when: not week4_key.stat.exists
+# Generate Key
+- name: Generate Key if not already generated
+  ansible.builtin.shell:
+    chdir: "~/.ssh"
+    cmd: 'ssh-keygen -f {{ ansible_key_name }} -N "" && chmod 700 {{ ansible_key_name }}'
+  when: not week4_key.stat.exists
+# Sanity Check
+- name: Make absolutely sure private key exists
+  ansible.builtin.stat:
+    path: "~/.ssh/{{ ansible_key_name }}"
+  register: week4_key_pri
+- name: Make absolutely sure public key exists
+  ansible.builtin.stat:
+    path: "~/.ssh/{{ ansible_key_name }}.pub"
+  register: week4_key_pub
+- name: Check Keys Exist
+  ansible.builtin.fail:
+    msg: "Not both {{ ansible_key_name }} private and public key exist"
+  when: not week4_key_pri.stat.exists or not week4_key_pub.stat.exists
+  

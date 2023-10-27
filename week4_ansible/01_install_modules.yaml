@@ -1,0 +1,4 @@
+- name: Install Required Modules Nodes
+  hosts: localhost, client, cluster
+  roles:
+    - install_modules

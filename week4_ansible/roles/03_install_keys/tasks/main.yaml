@@ -1,0 +1,19 @@
+- name: Include Variable File
+  ansible.builtin.include_vars:
+    file: variables.yaml
+
+- name: Copy Keys to Nodes
+  ansible.builtin.copy:
+    src: "/home/{{ user }}/.ssh/{{ item }}"
+    dest: "/home/{{ user }}/.ssh/{{ item }}"
+  with_items:
+    - "{{ ansible_key_name }}"
+    - "{{ ansible_key_name }}.pub"
+
+- name: Add public key to authorized_keys
+  ansible.posix.authorized_key:
+    user: "{{ user }}"
+    state: present
+    key: "{{ lookup('file', '/home/{{ user }}/.ssh/{{ ansible_key_name }}.pub') }}"
+    path: "/home/{{ user }}/.ssh/authorized_keys"
+    exclusive: false

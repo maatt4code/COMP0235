@@ -1,0 +1,11 @@
+# roles/filewalld/tasks/main.yaml
+# Install
+- name: Install FirewallD
+  ansible.builtin.dnf:
+    name: firewalld
+    state: latest
+# Start
+- name: Start FirewallD
+  ansible.builtin.service:
+    name: firewalld
+    state: started

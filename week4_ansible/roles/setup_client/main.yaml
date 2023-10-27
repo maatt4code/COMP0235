@@ -1,0 +1,113 @@
+# See https://github.com/jamespjh/EngineeringForDataAnalysisExamples/blob/main/ansible/hc_headnode.yml
+################################################################################
+# admin
+################################################################################
+- name: Include Variable File
+  ansible.builtin.include_vars:
+  name: variables.yaml
+
+################################################################################
+# ssh-keygen - create keys
+################################################################################
+- name: Check if key already exists
+  ansible.builtin.stat:
+    path: "~/.ssh/{{ key_name }}"
+  register: week4_key
+# 
+- name: Alert key is about to be generated
+  ansible.builtin.debug:
+    msg: "Going to generate {{ key_name }}"
+  when: not week4_key.stat.exists
+# Generate Key
+- name: Generate Key if not already generated
+  ansible.builtin.shell:
+    chdir: "~/.ssh"
+    cmd: 'ssh-keygen -f {{ key_name }} -N "" && chmod 700 {{ key_name }}'
+  when: not week4_key.stat.exists
+# Sanity Check
+- name: Make absolutely sure private key exists
+  ansible.builtin.stat:
+    path: "~/.ssh/{{ key_name }}"
+  register: week4_key_pri
+- name: Make absolutely sure public key exists
+  ansible.builtin.stat:
+    path: "~/.ssh/{{ key_name }}.pub"
+  register: week4_key_pub
+- name: Check Keys Exist
+  ansible.builtin.fail:
+    msg: "Not both {{ key_name }} private and public key exist"
+  when: not week4_key_pri.stat.exists or not week4_key_pub.stat.exists
+
+################################################################################
+# ssh key - copy key to cluster nodes
+################################################################################
+- name: Copy keys to Clusters
+  hosts: week
+
+################################################################################
+# Filestore - Somewhere to store the data
+################################################################################
+# On Client machines, there is a /dev/nvme1n1 that actually has space
+# need to format this before use
+- name: format the volume as ext4
+  community.general.filesystem:
+    dev: /dev/nvme1n1
+    fstype: ext4
+  become: true
+
+# Now, we need to be able to access /dev/nvme1n1 directly from our file system
+# So mount to to somewhere sensible
+- name: create a mount point for the data volume
+  ansible.builtin.file:
+    path: /home/ec2-user/data/
+    state: directory
+    mode: '0755' 
+- name: mount the filesystem
+  become: true
+  ansible.posix.mount:
+    name: data
+    src: /dev/nvme1n1
+    fstype: ext4
+    state: mounted 
+  become: true
+- name: change the owner back to ec2-user after mounting
+  become: true
+  ansible.builtin.file:
+    path: /home/ec2-user/data/
+    state: directory
+    mode: u+rwx,a+x
+    owner: ec2-user
+
+# Oh at the same time, we should install stuff we need
+- name: Install yum packages
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+    - python
+    - python-pip
+    - unzip
+    - wget
+    - httpd
+
+################################################################################
+# WebServer - So your slaves can fetch the data
+################################################################################
+- name: Set up the web server to serve from ~/data
+  become: true
+  ansible.builtin.copy:
+    src: cluster_apache.conf
+    dest: /etc/httpd/conf.d/data.conf
+- name: Allow apache to view files in ~/data
+  become: true
+  community.general.sefcontext:
+    target: '/home/ec2-user/data'
+    setype: httpd_sys_content_t
+    state: present
+- name: Start service httpd
+  become: true
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
