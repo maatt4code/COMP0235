@@ -1,6 +1,13 @@
 # Week 4 - Mini Exercise
 
 ## Tasks
+1. `variables.yaml` - so that everyone i on the same page and you don;t have to hardcode stuff
+1. `requirements.yaml` - used for installing ansible modules
+1. `inventory.yaml` - list oh nodes
+```bash
+# to skip known host fingerprint checks
+ansible-playbook -i inventory.yaml --private-key=~/.ssh/lecturer_key 01_install_modules.yaml --ssh-common-args='-o StrictHostKeyChecking=no'
+```
 
 ## Inventory
 - `host`
