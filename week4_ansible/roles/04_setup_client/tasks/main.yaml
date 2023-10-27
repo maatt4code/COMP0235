@@ -4,7 +4,7 @@
 ################################################################################
 - name: Include Variable File
   ansible.builtin.include_vars:
-  name: variables.yaml
+    file: variables.yaml
 
 ################################################################################
 # Filestore - Somewhere to store the data
@@ -21,7 +21,7 @@
 # So mount to to somewhere sensible
 - name: create a mount point for the data volume
   ansible.builtin.file:
-    path: "/home/{{ user }}/{{ week4_data }}/"
+    path: "/home/{{ user }}/{{ data_dir }}/"
     state: directory
     mode: '0755' 
 - name: mount the filesystem
@@ -35,7 +35,7 @@
 - name: change the owner back to ec2-user after mounting
   become: true
   ansible.builtin.file:
-    path: "/home/{{ user }}/{{ week4_data }}/"
+    path: "/home/{{ user }}/{{ data_dir }}/"
     state: directory
     mode: u+rwx,a+x
     owner: "{{ user }}"
@@ -57,15 +57,15 @@
 ################################################################################
 # WebServer - So your slaves can fetch the data
 ################################################################################
-- name: "Set up the web server to serve from ~/{{ week4_data }}/"
+- name: "Set up the web server to serve from ~/{{ data_dir }}/"
   become: true
   ansible.builtin.copy:
     src: cluster_apache.conf
     dest: /etc/httpd/conf.d/data.conf
-- name: "Allow apache to view files in ~/{{ week4_data }}/"
+- name: "Allow apache to view files in ~/{{ data_dir }}/"
   become: true
   community.general.sefcontext:
-    target: "/home/{{ user }}/{{ week4_data }}/"
+    target: "/home/{{ user }}/{{ data_dir }}/"
     setype: httpd_sys_content_t
     state: present
 - name: Start service httpd
