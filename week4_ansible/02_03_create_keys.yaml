@@ -1,12 +1,13 @@
-- name: Generate Keys
+- name: Generate Keys Locally
   hosts: localhost
   roles:
-    - role: create_keys_locally
+    - role: 02_create_keys
       vars:
         ansible_host_key_checking: false
 
-- name: Send keys to cluster nodes
+- name: Send keys to Nodes
   hosts: client, cluster
   roles:
-    - role: send_keys_to_cluster
-      ansible_host_key_checking: false
+    - role: 03_install_keys
+      vars:
+        ansible_host_key_checking: false
