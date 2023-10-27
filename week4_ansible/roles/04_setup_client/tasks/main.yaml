@@ -60,7 +60,7 @@
 - name: "Set up the web server to serve from ~/{{ data_dir }}/"
   become: true
   ansible.builtin.copy:
-    src: cluster_apache.conf
+    src: "/home/{{ user }}/{{ working_dir }}/config/cluster_apache.conf"
     dest: /etc/httpd/conf.d/data.conf
 - name: "Allow apache to view files in ~/{{ data_dir }}/"
   become: true
