@@ -12,7 +12,6 @@
   ansible.builtin.copy:
     src: "/home/{{ user }}/{{ working_dir }}/requirements.yaml"
     dest: "/home/{{ user }}/{{ working_dir }}/requirements.yaml"
-    state: file
     remote_src: yes
 
 - name: Install Ansible Packages
